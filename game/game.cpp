@@ -8,9 +8,13 @@
 using namespace std;
 #include <SFML/Graphics.hpp>
 using namespace sf; 
+#include "missiles.h"
 
 //============================================================
-// YOUR HEADER WITH YOUR NAME GOES HERE. PLEASE DO NOT FORGET THIS
+// Dietrich Versaw
+// Spcae Invaders Rip-off
+// 4/20/19
+// attempt to make a space invaders game
 //============================================================
 
 // note: a Sprite represents an image on screen. A sprite knows and remembers its own position
@@ -18,20 +22,26 @@ using namespace sf;
 // the current position of the ship. 
 // x is horizontal, y is vertical. 
 // 0,0 is in the UPPER LEFT of the screen, y increases DOWN the screen
-void moveShip(Sprite& ship)
+void moveShip(Sprite& ship, int windowWidth, unsigned shipSize )
 {
 	const float DISTANCE = 5.0;
 
 	if (Keyboard::isKeyPressed(Keyboard::Left))
 	{
-		// left arrow is pressed: move our ship left 5 pixels
-		// 2nd parm is y direction. We don't want to move up/down, so it's zero.
-		ship.move(-DISTANCE, 0);
+		if (ship.getPosition().x > ((windowWidth * (1.0f / 20.0f)) - shipSize))
+		{
+			// left arrow is pressed: move our ship left 5 pixels
+			// 2nd parm is y direction. We don't want to move up/down, so it's zero.
+			ship.move(-DISTANCE, 0);
+		}
 	}
 	else if (Keyboard::isKeyPressed(Keyboard::Right))
 	{
-		// right arrow is pressed: move our ship right 5 pixels
-		ship.move(DISTANCE, 0);
+		if (ship.getPosition().x < (windowWidth * (19.0f / 20.0f)))
+		{
+			// right arrow is pressed: move our ship right 5 pixels
+			ship.move(DISTANCE, 0);
+		}
 	}
 }
 
@@ -54,13 +64,31 @@ int main()
 		cout << "Unable to load ship texture!" << endl;
 		exit(EXIT_FAILURE);
 	}
+	Vector2u shipSize = shipTexture.getSize();
 	Texture starsTexture;
 	if (!starsTexture.loadFromFile("stars.jpg"))
 	{
 		cout << "Unable to load stars texture!" << endl;
 		exit(EXIT_FAILURE);
 	}
-
+	Texture alienTexture;
+	if (!alienTexture.loadFromFile("alien.png"))
+	{
+		cout << "Unable to load alien texture!" << endl;
+		exit(EXIT_FAILURE);
+	}
+	Texture bombTexture;
+	if (!bombTexture.loadFromFile("bomb.png"))
+	{
+		cout << "Unable to load bomb texture!" << endl;
+		exit(EXIT_FAILURE);
+	}
+	Texture missileTexture;
+	if (!missileTexture.loadFromFile("missile.png"))
+	{
+		cout << "Unable to load missile texture!" << endl;
+		exit(EXIT_FAILURE);
+	}
 	// A sprite is a thing we can draw and manipulate on the screen.
 	// We have to give it a "texture" to specify what it looks like
 
@@ -73,10 +101,11 @@ int main()
 	Sprite ship;
 	ship.setTexture(shipTexture);
 
-
+	
 	// initial position of the ship will be approx middle of screen
 	float shipX = window.getSize().x / 2.0f;
-	float shipY = window.getSize().y / 2.0f;
+	float shipY = (window.getSize().y * 11)/ 12.0f;
+	// used in alien reaching ground loss condition
 	ship.setPosition(shipX, shipY);
 
 
@@ -97,7 +126,6 @@ int main()
 				{
 					// handle space bar
 				}
-				
 			}
 		}
 
@@ -111,7 +139,7 @@ int main()
 		// will appear on top of background
 		window.draw(background);
 
-		moveShip(ship);
+		moveShip(ship, WINDOW_WIDTH, shipSize.x);
 
 		// draw the ship on top of background 
 		// (the ship from previous frame was erased when we drew background)
