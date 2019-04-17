@@ -20,8 +20,8 @@ public:
 	{
 		if (spawnDelay <= 0)
 		{
-			Missile * nMissile = new Missile(missileTxtr, shipPos);
-			missileList.push_back(*nMissile);
+			Missile nMissile(missileTxtr, shipPos);
+			missileList.push_back(nMissile);
 			spawnDelay = spawnWaitTime;
 		}
 	}
