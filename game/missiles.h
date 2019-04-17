@@ -5,22 +5,35 @@ using namespace sf;
 using namespace std;
 #include "missile.h"
 
+
 class Missiles
 {
 private:
 	list<Missile> missileList;
+	int spawnDelay;
 public:
-	void spawnMissile(Texture &missileTxtr, Vector2f shipPos)
+	Missiles()
 	{
-		Missile * nMissile = new Missile(missileTxtr, shipPos);
-		missileList.push_back(*nMissile);
+		spawnDelay = 0;
 	}
+	void spawnMissile(Texture &missileTxtr, Vector2f shipPos, int spawnWaitTime)
+	{
+		if (spawnDelay <= 0)
+		{
+			Missile * nMissile = new Missile(missileTxtr, shipPos);
+			missileList.push_back(*nMissile);
+			spawnDelay = spawnWaitTime;
+		}
+	}
+	// handle missile movement, collison / action, drawing
 	void moveMissiles(RenderWindow &win)
 	{
+		if (spawnDelay > 0) spawnDelay--;
 		list<Missile>::iterator iter;
 		for (iter = missileList.begin(); iter != missileList.end();)
 		{
-			if (iter->moveUp())
+		
+			if (!(iter->moveUp())) // if missile can't move up, despawn
 			{
 				iter = missileList.erase(iter);
 			}

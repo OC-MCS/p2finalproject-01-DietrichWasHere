@@ -18,7 +18,7 @@ public:
 	bool moveUp()
 	{
 		bool continueFlight = true; // tell program to delete dynamically alocated sprite if true
-		if (missileSprite.getPosition().y < 0)
+		if (missileSprite.getPosition().y > 0)
 		{
 			missileSprite.move(0, -4.0f);
 		}

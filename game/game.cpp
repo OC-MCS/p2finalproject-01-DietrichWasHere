@@ -9,6 +9,7 @@ using namespace std;
 #include <SFML/Graphics.hpp>
 using namespace sf; 
 #include "missiles.h"
+#include "missile.h"
 
 //============================================================
 // Dietrich Versaw
@@ -101,6 +102,8 @@ int main()
 	Sprite ship;
 	ship.setTexture(shipTexture);
 
+	Missiles missileGroup;
+
 	
 	// initial position of the ship will be approx middle of screen
 	float shipX = window.getSize().x / 2.0f;
@@ -124,7 +127,7 @@ int main()
 			{
 				if (event.key.code == Keyboard::Space)
 				{
-					// handle space bar
+					missileGroup.spawnMissile(missileTexture, ship.getPosition(), 30);
 				}
 			}
 		}
@@ -144,6 +147,8 @@ int main()
 		// draw the ship on top of background 
 		// (the ship from previous frame was erased when we drew background)
 		window.draw(ship);
+		// render/move/check collisions for missiles
+		missileGroup.moveMissiles(window);
 
 
 		// end the current frame; this makes everything that we have 
