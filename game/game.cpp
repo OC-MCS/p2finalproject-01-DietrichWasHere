@@ -166,6 +166,12 @@ int main()
 			// check if 
 			if ((gameState == 'p') && (herd.getWin())) gameState = 's'; // change game state if all aliens defeated
 		}
+		else
+		{
+			bombGroup.clearBombs();
+			missileGroup.clearMissiles();
+		}
+
 		
 		// end the current frame; this makes everything that we have 
 		// already "drawn" actually show up on the screen

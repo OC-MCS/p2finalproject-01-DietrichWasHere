@@ -11,7 +11,7 @@ using namespace std;
 class Missiles
 {
 private:
-	list<Missile> bombList;
+	list<Missile> missileList;
 	int spawnDelay;
 public:
 	Missiles()
@@ -23,7 +23,7 @@ public:
 		if (spawnDelay <= 0)
 		{
 			Missile nMissile(missileTxtr, shipPos);
-			bombList.push_back(nMissile);
+			missileList.push_back(nMissile);
 			spawnDelay = spawnWaitTime;
 		}
 	}
@@ -32,22 +32,22 @@ public:
 	{
 		if (spawnDelay > 0) spawnDelay--;
 		list<Missile>::iterator iter;
-		for (iter = bombList.begin(); iter != bombList.end();)
+		for (iter = missileList.begin(); iter != missileList.end();)
 		{
 		
 			if (!(iter->moveUp())) // if missile can't move up, despawn
 			{
-				iter = bombList.erase(iter);
+				iter = missileList.erase(iter);
 			}
 			else if (herd.checkCollision(iter->getCollision())) // alien collision check; check collisions w/ all  aliens
 			{
 				// collision check action
-				iter = bombList.erase(iter);
+				iter = missileList.erase(iter);
 			}
 			else if (bombGroup.checkCollision(iter->getCollision())) // bomb collision check
 			{
 				// collision check action
-				iter = bombList.erase(iter);
+				iter = missileList.erase(iter);
 			}
 			else
 			{
@@ -55,5 +55,11 @@ public:
 				iter++;
 			}
 		}
+	}
+	// clear out any remaining missiles for reset / next level
+	void clearMissiles()
+	{
+		missileList.clear();
+		cout << "cleared" << endl;
 	}
 };

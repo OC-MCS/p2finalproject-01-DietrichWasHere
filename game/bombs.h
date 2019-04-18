@@ -90,4 +90,9 @@ public:
 		if (hit) iter = bombList.erase(iter);
 		return hit;
 	}
+	// clear out any remaining bombs for reset / next level
+	void clearBombs()
+	{
+		bombList.clear();
+	}
 };

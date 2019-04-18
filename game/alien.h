@@ -19,17 +19,6 @@ public:
 	void moveDown(float speed)
 	{
 		alienSprite.move(0, speed);
-		/*
-		bool continueFlight = true; // tell program to delete dynamically alocated sprite if true
-		if (alienSprite.getPosition().y < shipYPos)
-		{
-			
-		}
-		else
-		{
-			continueFlight = false;
-		}
-		return continueFlight;*/
 	}
 	// return y poss for loss check
 	float getYPos()

@@ -25,7 +25,7 @@ public:
 		alienPos.y = windowBounds.y / 40.0f;
 		for (float i = 1; i <= num; i++)
 		{
-			alienPos.x = (windowBounds.x * (i + 1.0f)) / (num + 2.0f);
+			alienPos.x = ((windowBounds.x * (i + 2.0f)) / (num + 5.0f)) + 0.25f;
 			spawnAlien(alienTxtr, alienPos);
 		}
 	}
