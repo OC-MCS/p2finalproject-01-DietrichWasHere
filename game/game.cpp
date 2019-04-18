@@ -10,6 +10,7 @@ using namespace std;
 using namespace sf; 
 #include "missiles.h"
 #include "missiles.h"
+#include "bombs.h"
 
 //============================================================
 // Dietrich Versaw
@@ -104,6 +105,7 @@ int main()
 
 	Missiles missileGroup;
 	AlienHerd herd;
+	Bombs bombGroup;
 
 	
 	// initial position of the ship will be approx middle of screen
@@ -123,19 +125,19 @@ int main()
 
 		while (window.pollEvent(event))
 		{
-			if (gameState == 'p')
-			{
+			
+
 				// "close requested" event: we close the window
 				if (event.type == Event::Closed)
 					window.close();
-				else if (event.type == Event::KeyPressed)
+				// if gamestate = playing,  check for bombSpawn; avoid spawning extra bombs
+				if (event.type == Event::KeyPressed && gameState == 'p')
 				{
 					if (event.key.code == Keyboard::Space)
 					{
 						missileGroup.spawnMissile(missileTexture, ship.getPosition(), 2);
 					}
 				}
-			}
 		}
 
 		//===========================================================
@@ -147,24 +149,24 @@ int main()
 		// draw background first, so everything that's drawn later 
 		// will appear on top of background
 		window.draw(background);
-
-		moveShip(ship, WINDOW_WIDTH, shipSize.x);
-
-		// draw the ship on top of background 
-		// (the ship from previous frame was erased when we drew background)
-		window.draw(ship);
-		// render/move/check collisions for missiles
+		
+		// manage gamemode
 		if (gameState == 'p')
 		{
-			missileGroup.moveMissiles(window, herd);
-			if (herd.getWin()) gameState = 's';
-			else if (!(herd.moveHerd(window, 0.2, shipY))) gameState = 'a'; // herd.moveHerd only called when herd has contents
+			moveShip(ship, WINDOW_WIDTH, shipSize.x);
+			// draw the ship on top of background 
+			// (the ship from previous frame was erased when we drew background)
+			window.draw(ship);
+			if (!(herd.moveHerd(window, 0.2, shipY))) gameState = 'a'; // herd.moveHerd only called when herd has contents
+			// render/move/check collisions for bombs
+			if (bombGroup.waitTimeOver(500, 100)) bombGroup.spawnBomb(bombTexture, herd.getBombPos());
+			if (bombGroup.moveBombs(window, ship.getGlobalBounds(), 0.2)) gameState = 'a';
+			// render/move/check collisions for missiles
+			missileGroup.moveMissiles(window, herd, bombGroup);
+			// check if 
+			if ((gameState == 'p') && (herd.getWin())) gameState = 's'; // change game state if all aliens defeated
 		}
 		
-		
-		
-
-
 		// end the current frame; this makes everything that we have 
 		// already "drawn" actually show up on the screen
 		window.display();
@@ -173,7 +175,9 @@ int main()
 		// Now control will go back to the top of the animation loop
 		// to build the next frame. Since we begin by drawing the
 		// background, each frame is rebuilt from scratch.
-		cout << gameState << endl;
+
+		// cout << gameState << endl;
+
 	} // end body of animation loop
 
 	return 0;

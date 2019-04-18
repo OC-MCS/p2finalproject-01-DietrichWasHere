@@ -40,7 +40,6 @@ public:
 		if (iter->getYPos() > shipYPos) cont = false;
 		win.draw(iter->getSprite());
 		iter++;
-		cout << cont << endl;
 
 		while (iter != alienGroup.end())
 		{

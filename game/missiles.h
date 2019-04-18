@@ -5,12 +5,13 @@ using namespace sf;
 using namespace std;
 #include "missile.h"
 #include "alienHerd.h"
+#include "bombs.h"
 
 
 class Missiles
 {
 private:
-	list<Missile> missileList;
+	list<Missile> bombList;
 	int spawnDelay;
 public:
 	Missiles()
@@ -22,32 +23,31 @@ public:
 		if (spawnDelay <= 0)
 		{
 			Missile nMissile(missileTxtr, shipPos);
-			missileList.push_back(nMissile);
+			bombList.push_back(nMissile);
 			spawnDelay = spawnWaitTime;
 		}
 	}
 	// handle missile movement, collison / action, drawing
-	void moveMissiles(RenderWindow &win, AlienHerd &herd)
+	void moveMissiles(RenderWindow &win, AlienHerd &herd, Bombs &bombGroup)
 	{
 		if (spawnDelay > 0) spawnDelay--;
 		list<Missile>::iterator iter;
-		for (iter = missileList.begin(); iter != missileList.end();)
+		for (iter = bombList.begin(); iter != bombList.end();)
 		{
 		
 			if (!(iter->moveUp())) // if missile can't move up, despawn
 			{
-				iter = missileList.erase(iter);
+				iter = bombList.erase(iter);
 			}
 			else if (herd.checkCollision(iter->getCollision())) // alien collision check; check collisions w/ all  aliens
 			{
 				// collision check action
-				iter = missileList.erase(iter);
+				iter = bombList.erase(iter);
 			}
-			else if (false) // bomb collision check
+			else if (bombGroup.checkCollision(iter->getCollision())) // bomb collision check
 			{
-				iter->getCollision();
 				// collision check action
-				iter = missileList.erase(iter);
+				iter = bombList.erase(iter);
 			}
 			else
 			{

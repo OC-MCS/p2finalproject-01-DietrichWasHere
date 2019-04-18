@@ -15,7 +15,9 @@ public:
 		bombSprite.setPosition(alienPos.x + (2 * bombTxtr.getSize().x), alienPos.y);
 	}
 	// change sprite's position, return false if off screen to initiate destruction
-	bool moveUp(float windH, float speed)
+	// window heigth, speed as input
+	// bool tells whether if bomb has not exited screen
+	bool moveDown(float windH, float speed)
 	{
 		bool continueFlight = true; // tell program to delete dynamically alocated sprite if true
 		if (bombSprite.getPosition().y < windH)
