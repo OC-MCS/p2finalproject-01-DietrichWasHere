@@ -2,6 +2,8 @@
 #include <SFML/Graphics.hpp>
 using namespace sf;
 #include <list>
+#include <ctime>
+#include <cstdlib>
 using namespace std;
 #include "alien.h"
 
@@ -72,6 +74,21 @@ public:
 			win = true;
 		}
 		return win;
+	}
+	// get an alien for a bomb position
+	Vector2f getBombPos()
+	{
+		Vector2f bombPos;
+		unsigned seed = time(0);
+		srand(seed);
+		int alienToDrop = rand() % alienGroup.size(); // the alien in the order that drops the bomb
+		list<Alien>::iterator iter;
+		iter = alienGroup.begin();
+		for (int i = 0; i < alienToDrop; i++) iter++;
+		bombPos = iter->getPos();
+		bombPos.y += 1.0f;
+		bombPos.x += 1.0f;
+		return bombPos;
 	}
 };
 	

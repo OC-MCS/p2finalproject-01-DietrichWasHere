@@ -154,6 +154,8 @@
   <ItemGroup>
     <ClInclude Include="alien.h" />
     <ClInclude Include="alienHerd.h" />
+    <ClInclude Include="bomb.h" />
+    <ClInclude Include="bombs.h" />
     <ClInclude Include="missiles.h" />
     <ClInclude Include="missile.h" />
     <ClInclude Include="ui.h" />

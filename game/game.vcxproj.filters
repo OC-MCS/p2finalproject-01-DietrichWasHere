@@ -40,5 +40,11 @@
     <ClInclude Include="alienHerd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="bomb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bombs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
