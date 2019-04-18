@@ -9,7 +9,7 @@ using namespace std;
 #include <SFML/Graphics.hpp>
 using namespace sf; 
 #include "missiles.h"
-#include "missile.h"
+#include "missiles.h"
 
 //============================================================
 // Dietrich Versaw
@@ -103,6 +103,7 @@ int main()
 	ship.setTexture(shipTexture);
 
 	Missiles missileGroup;
+	AlienHerd herd;
 
 	
 	// initial position of the ship will be approx middle of screen
@@ -110,24 +111,29 @@ int main()
 	float shipY = (window.getSize().y * 11)/ 12.0f;
 	// used in alien reaching ground loss condition
 	ship.setPosition(shipX, shipY);
-
+	herd.addAliens(alienTexture, 10, window.getSize());
+	char gameState = 'p';
 
 	while (window.isOpen())
 	{
+		
 		// check all the window's events that were triggered since the last iteration of the loop
 		// For now, we just need this so we can click on the window and close it
 		Event event;
 
 		while (window.pollEvent(event))
 		{
-			// "close requested" event: we close the window
-			if (event.type == Event::Closed)
-				window.close();
-			else if (event.type == Event::KeyPressed)
+			if (gameState == 'p')
 			{
-				if (event.key.code == Keyboard::Space)
+				// "close requested" event: we close the window
+				if (event.type == Event::Closed)
+					window.close();
+				else if (event.type == Event::KeyPressed)
 				{
-					missileGroup.spawnMissile(missileTexture, ship.getPosition(), 30);
+					if (event.key.code == Keyboard::Space)
+					{
+						missileGroup.spawnMissile(missileTexture, ship.getPosition(), 2);
+					}
 				}
 			}
 		}
@@ -148,7 +154,15 @@ int main()
 		// (the ship from previous frame was erased when we drew background)
 		window.draw(ship);
 		// render/move/check collisions for missiles
-		missileGroup.moveMissiles(window);
+		if (gameState == 'p')
+		{
+			missileGroup.moveMissiles(window, herd);
+			if (herd.getWin()) gameState = 's';
+			else if (!(herd.moveHerd(window, 0.2, shipY))) gameState = 'a'; // herd.moveHerd only called when herd has contents
+		}
+		
+		
+		
 
 
 		// end the current frame; this makes everything that we have 
@@ -159,7 +173,7 @@ int main()
 		// Now control will go back to the top of the animation loop
 		// to build the next frame. Since we begin by drawing the
 		// background, each frame is rebuilt from scratch.
-
+		cout << gameState << endl;
 	} // end body of animation loop
 
 	return 0;

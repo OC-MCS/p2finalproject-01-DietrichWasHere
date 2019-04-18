@@ -12,7 +12,7 @@ public:
 	Missile(Texture &missileTxtr, Vector2f shipPos)
 	{
 		missileSprite.setTexture(missileTxtr);
-		missileSprite.setPosition(shipPos.x, shipPos.y);
+		missileSprite.setPosition(shipPos.x + (2 * missileTxtr.getSize().x), shipPos.y);
 	}
 	// change sprite's position, return false if off screen to initiate destruction
 	bool moveUp()

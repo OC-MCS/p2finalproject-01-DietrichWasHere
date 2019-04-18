@@ -23,22 +23,22 @@ public:
 		alienPos.y = windowBounds.y / 40.0f;
 		for (float i = 1; i <= num; i++)
 		{
-			alienPos.x = (windowBounds.x * (i + 2.0f)) / (num + 2.0f);
+			alienPos.x = (windowBounds.x * (i + 1.0f)) / (num + 2.0f);
 			spawnAlien(alienTxtr, alienPos);
 		}
 	}
 	// handle missile movement, collison / action, drawing
 	// if aliens reach bottom of screen, 
-	bool moveHerd(RenderWindow &win, int speed, int shipYPos)
+	bool moveHerd(RenderWindow &win, float speed, int shipYPos)
 	{
-		bool loss = false; // if an alien reaches bottom, player loses
+		bool cont = true; // if an alien reaches bottom, player loses, continue = false
 		list<Alien>::iterator iter = alienGroup.begin();
 		// move first missile, check if missiles have reached ship
 		iter->moveDown(speed);
-		if (iter->getYPos() > shipYPos) loss = true;
+		if (iter->getYPos() > shipYPos) cont = false;
 		win.draw(iter->getSprite());
 		iter++;
-
+		cout << cont << endl;
 
 		while (iter != alienGroup.end())
 		{
@@ -46,15 +46,19 @@ public:
 			win.draw(iter->getSprite());
 			iter++;
 		}
-		return loss;
+		return cont;
 	}
+	// check all aliens' collisions against individual missile, if hit, destroy alien
+	// return true to tell missiles to destroy missile
 	bool checkCollision(FloatRect missileBounds)
 	{
 		bool hit = false; // if a hit with the input rect is detected, return such
 		list<Alien>::iterator iter;
-		for (iter = alienGroup.begin(); iter != alienGroup.end() && !hit;iter++)
+		iter = alienGroup.begin();
+		while (iter != alienGroup.end() && !hit)
 		{
 			if (missileBounds.intersects(iter->getCollision())) hit = true;
+			else iter++;
 		}
 		if (hit) iter = alienGroup.erase(iter);
 		return hit;

@@ -4,6 +4,7 @@ using namespace sf;
 #include <list>
 using namespace std;
 #include "missile.h"
+#include "alienHerd.h"
 
 
 class Missiles
@@ -26,7 +27,7 @@ public:
 		}
 	}
 	// handle missile movement, collison / action, drawing
-	void moveMissiles(RenderWindow &win)
+	void moveMissiles(RenderWindow &win, AlienHerd &herd)
 	{
 		if (spawnDelay > 0) spawnDelay--;
 		list<Missile>::iterator iter;
@@ -37,9 +38,8 @@ public:
 			{
 				iter = missileList.erase(iter);
 			}
-			else if (false) // alien collision check
+			else if (herd.checkCollision(iter->getCollision())) // alien collision check; check collisions w/ all  aliens
 			{
-				iter->getCollision();
 				// collision check action
 				iter = missileList.erase(iter);
 			}
