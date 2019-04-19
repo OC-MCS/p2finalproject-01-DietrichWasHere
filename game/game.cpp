@@ -188,7 +188,7 @@ int main()
 			game.increaseScore(missileGroup.moveMissiles(window, herd, bombGroup)); // move missiles, increase score accordingly
 			// check if 
 			if (herd.getWin()) game.levelUp(); // change game state if all aliens defeated
-			// render data
+			// render data - since data renders after stats change, loss of all lives results in frame where new stats arre shown
 			game.renderData(window);
 		}
 		// if game needed to reset

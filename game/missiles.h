@@ -18,6 +18,8 @@ public:
 	{
 		spawnDelay = 0;
 	}
+	// create a missile using the given txture, position, but only if wait time has elapsed
+	// woat time should probably be handled outside the function... probably less demandign on computer
 	void spawnMissile(Texture &missileTxtr, Vector2f shipPos, int spawnWaitTime)
 	{
 		if (spawnDelay <= 0)

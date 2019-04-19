@@ -192,11 +192,13 @@ public:
 		}
 		return spawnTime;
 	}
+	// render btn and btn text using the given window
 	void renderBtn(RenderWindow &win)
 	{
 		win.draw(btnTxt);
 		win.draw(btn);
 	}
+	// update and render data (hence render window)
 	void renderData(RenderWindow &win)
 	{
 		// had trouble getting this to work. Didn't know how to in to str;
@@ -210,6 +212,7 @@ public:
 		dataTxt.setString(dataStr);
 		win.draw(dataTxt);
 	}
+	// check if btn has been clicked after mouse release
 	void checkBtnClick(Vector2f mouse)
 	{
 		if (btn.getGlobalBounds().contains(mouse))
@@ -217,10 +220,12 @@ public:
 			setStatePlay();
 		}
 	}
+	// check level (mainly used to load sprites
 	bool checkLevel(int level)
 	{
 		return (lvl == level);
 	}
+	// increase score by input
 	void increaseScore(int add)
 	{
 		score += add;
