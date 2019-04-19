@@ -22,7 +22,7 @@ public:
 		bool continueFlight = true; // tell program to delete dynamically alocated sprite if true
 		if (bombSprite.getPosition().y < windH)
 		{
-			bombSprite.move(0, speed *  2.0f);
+			bombSprite.move(0, speed);
 		}
 		else
 		{

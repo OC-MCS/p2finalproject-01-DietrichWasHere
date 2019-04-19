@@ -22,7 +22,8 @@ public:
 	// check wait time, reset if up
 	// base time depends on level
 	// returns bool to trigger bomb drop
-	bool waitTimeOver(int maxTime, int minTime)
+	// timedSpawn vector x is max, y is min
+	bool waitTimeOver(Vector2i timedSpawn)
 	{
 		bool over = false; // return value; communicates if wait time is over
 		if (spawnDelay <= 0)
@@ -31,7 +32,7 @@ public:
 			over = true;
 			unsigned seed = time(0);
 			srand(seed);
-			spawnDelay = (rand() % (maxTime - minTime)) + minTime;
+			spawnDelay = (rand() % (timedSpawn.x - timedSpawn.y)) + timedSpawn.x;
 		}
 		else
 		{

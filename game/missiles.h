@@ -60,6 +60,5 @@ public:
 	void clearMissiles()
 	{
 		missileList.clear();
-		cout << "cleared" << endl;
 	}
 };

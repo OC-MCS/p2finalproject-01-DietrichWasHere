@@ -11,6 +11,7 @@ using namespace sf;
 #include "missiles.h"
 #include "missiles.h"
 #include "bombs.h"
+#include "ui.h"
 
 //============================================================
 // Dietrich Versaw
@@ -57,6 +58,8 @@ int main()
 	RenderWindow window(VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "aliens!");
 	// Limit the framerate to 60 frames per second
 	window.setFramerateLimit(60);
+
+	UIGameControl game;
 
 	// load textures from file into memory. This doesn't display anything yet.
 	// Notice we do this *before* going into animation loop.
@@ -106,15 +109,14 @@ int main()
 	Missiles missileGroup;
 	AlienHerd herd;
 	Bombs bombGroup;
-
+	game.setStatePlay();
 	
 	// initial position of the ship will be approx middle of screen
 	float shipX = window.getSize().x / 2.0f;
 	float shipY = (window.getSize().y * 11)/ 12.0f;
 	// used in alien reaching ground loss condition
 	ship.setPosition(shipX, shipY);
-	herd.addAliens(alienTexture, 10, window.getSize());
-	char gameState = 'p';
+	herd.addAliens(alienTexture, game.getNumAliens(), window.getSize());
 
 	while (window.isOpen())
 	{
@@ -131,11 +133,11 @@ int main()
 				if (event.type == Event::Closed)
 					window.close();
 				// if gamestate = playing,  check for bombSpawn; avoid spawning extra bombs
-				if (event.type == Event::KeyPressed && gameState == 'p')
+				if (event.type == Event::KeyPressed && game.checkStatePlay())
 				{
-					if (event.key.code == Keyboard::Space)
+					if (event.key.code == Keyboard::Space) // if continued work, modify to prevent strafing
 					{
-						missileGroup.spawnMissile(missileTexture, ship.getPosition(), 2);
+						missileGroup.spawnMissile(missileTexture, ship.getPosition(), game.getMissileSpawnRate());
 					}
 				}
 		}
@@ -151,20 +153,22 @@ int main()
 		window.draw(background);
 		
 		// manage gamemode
-		if (gameState == 'p')
+		if (game.checkStatePlay())
 		{
 			moveShip(ship, WINDOW_WIDTH, shipSize.x);
 			// draw the ship on top of background 
 			// (the ship from previous frame was erased when we drew background)
 			window.draw(ship);
-			if (!(herd.moveHerd(window, 0.2, shipY))) gameState = 'a'; // herd.moveHerd only called when herd has contents
+			if (!(herd.moveHerd(window, game.getAlienDropSpeed(), shipY))) game.setStateAlienVictory(); // herd.moveHerd only called when herd has contents
 			// render/move/check collisions for bombs
-			if (bombGroup.waitTimeOver(500, 100)) bombGroup.spawnBomb(bombTexture, herd.getBombPos());
-			if (bombGroup.moveBombs(window, ship.getGlobalBounds(), 0.2)) gameState = 'a';
+			if (bombGroup.waitTimeOver(game.getBombSpawnTime())) bombGroup.spawnBomb(bombTexture, herd.getBombPos());
+			if (bombGroup.moveBombs(window, ship.getGlobalBounds(), game.getAlienDropSpeed() * 2.0f)) game.setStateAlienVictory();
+			// alien speed * 2 is missile speed
+
 			// render/move/check collisions for missiles
 			missileGroup.moveMissiles(window, herd, bombGroup);
 			// check if 
-			if ((gameState == 'p') && (herd.getWin())) gameState = 's'; // change game state if all aliens defeated
+			if ((game.checkStatePlay()) && (herd.getWin())) game.setStatePlayerVictory(); // change game state if all aliens defeated
 		}
 		else
 		{
