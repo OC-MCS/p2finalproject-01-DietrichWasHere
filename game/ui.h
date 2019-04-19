@@ -8,7 +8,7 @@ class UIGameControl
 private:
 	char gameState; 
 	// s - startScreen, g - play, a - alien victory, p - player victory
-	// w - win
+	// w - win, l - loss
 	int lvl; // level of game player is on
 	int lives; // lives remaining
 public:
@@ -47,9 +47,16 @@ public:
 		return (gameState == 'a');
 	}
 	// set state to a - alien victory
+	// decrement lives
+	// if lives too low, reset game
 	void setStateAlienVictory()
 	{
 		gameState = 'a';
+		lives--;
+		if (lives < 1)
+		{
+			resetGame();
+		}
 	}
 	// check if the state is p - player victory
 	bool checkStatePlayerVictory()
@@ -74,6 +81,27 @@ public:
 			gameState = 'w';
 		}
 	}
+	// check if the state is w - win
+	bool checkStateWin()
+	{
+		return (gameState == 'w');
+	}
+	// if lives too low, reset game
+	// set state to l - loss
+	void resetGame()
+	{
+		cout << lives << " " << lvl << endl;
+		gameState = 'l';
+		lvl = 1;
+		lives = 3;
+	}
+	// check if the state is l - loss
+	bool checkStateLoss()
+	{
+		return (gameState == 'l');
+	}
+
+	// methods for level data
 	// based on level, return the number of aliens that should be spawned
 	int getNumAliens()
 	{
@@ -113,8 +141,8 @@ public:
 		}
 		else if (lvl == 2)
 		{
-			spawnTime.x = 300;
-			spawnTime.y = 100;
+			spawnTime.x = 200;
+			spawnTime.y = 50;
 		}
 		else if (lvl == 3)
 		{
@@ -122,11 +150,5 @@ public:
 			spawnTime.y = 15;
 		}
 		return spawnTime;
-	}
-	void resetGame()
-	{
-		gameState = 's';
-		lvl = 1;
-		lives = 3;
 	}
 };

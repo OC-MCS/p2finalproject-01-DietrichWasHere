@@ -127,8 +127,6 @@ int main()
 
 		while (window.pollEvent(event))
 		{
-			
-
 				// "close requested" event: we close the window
 				if (event.type == Event::Closed)
 					window.close();
@@ -170,10 +168,18 @@ int main()
 			// check if 
 			if ((game.checkStatePlay()) && (herd.getWin())) game.setStatePlayerVictory(); // change game state if all aliens defeated
 		}
-		else
+		// if game needed to reset
+		else if (game.checkStateAlienVictory() || game.checkStatePlayerVictory() || game.checkStateStart() || game.checkStateWin() || game.checkStateLoss())
 		{
+			// clear extra sprites
 			bombGroup.clearBombs();
 			missileGroup.clearMissiles();
+			herd.clearAliens();
+			// create game objects for level
+			// used in alien reaching ground loss condition
+			ship.setPosition(shipX, shipY);
+			herd.addAliens(alienTexture, game.getNumAliens(), window.getSize());
+			game.setStatePlay();
 		}
 
 		

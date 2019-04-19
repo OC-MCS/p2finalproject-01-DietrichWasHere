@@ -89,5 +89,10 @@ public:
 		bombPos.x += 1.0f;
 		return bombPos;
 	}
+	// clear out any remaining aliens for reset / next level
+	void clearAliens()
+	{
+		alienGroup.clear();
+	}
 };
 	
