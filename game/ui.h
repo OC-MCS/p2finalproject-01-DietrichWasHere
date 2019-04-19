@@ -2,22 +2,56 @@
 #include <SFML/Graphics.hpp>
 using namespace sf;
 
+// kill program when font does not load
+void die(string msg)
+{
+	cout << msg << endl;
+	exit(-1);
+}
+
+
 // 
 class UIGameControl
 {
 private:
 	char gameState; 
-	// s - startScreen, g - play, a - alien victory, p - player victory
+	// s - screen (wait for click), g - play, a - alien victory, p - player victory
 	// w - win, l - loss
 	int lvl; // level of game player is on
 	int lives; // lives remaining
+	int score; // score, goes up as aliens destroyed
+	Text dataTxt; // display game data (lvl, lives, score), constant update
+	Text btnTxt; // text for button, changes based on state
+	RectangleShape btn; // if clicked, play next level - works regardless of state
+	Font font; // for loading font
 public:
 	// constructor; sets level, starting game state
-	UIGameControl()
+	UIGameControl(Vector2u winSize)
 	{
+		// set btn starting values
+		btn.setPosition(Vector2f((winSize.x * 3.0f)/ 8.0f, (winSize.y * 3.0f) / 8.0f));
+		btn.setOutlineColor(Color::Green);
+		btn.setOutlineThickness(2);
+		btn.setSize(Vector2f(winSize.x / 4.0f, winSize.y / 4.0f));
+		btn.setFillColor(Color::Transparent);
+		// set text starting values for btnTxt
+		if (!font.loadFromFile("C:\\Windows\\Fonts\\arial.ttf"))
+			die("couldn't load font");
+		btnTxt.setFont(font);
+		btnTxt.setFillColor(Color::Green);
+		btnTxt.setCharacterSize(25);
+		btnTxt.setString("Start Game");
+		btnTxt.setPosition(Vector2f((winSize.x * 7.0f) / 16.0f, (winSize.y * 7.0f) / 16.0f));
 		gameState = 's';
 		lvl = 1;
 		lives = 3;
+		score = 0;
+		dataTxt.setFont(font);
+		dataTxt.setFillColor(Color::Green);
+ 		dataTxt.setCharacterSize(20);
+		// this is super convoluted
+		dataTxt.setString("Level: 1\nLives: 3\nScore: 0");
+		dataTxt.setPosition(Vector2f((winSize.x * 1.0f) / 32.0f, (winSize.y * 1.0f) / 32.0f));
 	}
 	// check if the state is g - play
 	bool checkStatePlay()
@@ -29,17 +63,15 @@ public:
 	{
 		gameState = 'g';
 	}
-	// check if the state is g - play
-	bool checkStateStart()
+	// check if the state is s - screen (wait for click)
+	bool checkStateScreen()
 	{
 		return (gameState == 's');
 	}
-	// set state to s - play
-	// reset to first level
-	void setStateStart()
+	// set state to s - screen (wait for click)
+	void setStateScreen()
 	{
 		gameState = 's';
-		lvl = 1;
 	}
 	// check if the state is a - alien victory
 	bool checkStateAlienVictory()
@@ -48,14 +80,19 @@ public:
 	}
 	// set state to a - alien victory
 	// decrement lives
+	// set btn text appropriately
 	// if lives too low, reset game
-	void setStateAlienVictory()
+	void alienVictory()
 	{
-		gameState = 'a';
 		lives--;
 		if (lives < 1)
 		{
 			resetGame();
+		}
+		else
+		{
+			gameState = 'a';
+			btnTxt.setString("Ouch!\nRetry Level");
 		}
 	}
 	// check if the state is p - player victory
@@ -63,22 +100,25 @@ public:
 	{
 		return (gameState == 'p');
 	}
-	// set state to p - player victory
-	// increasen level by 1; 
-	void setStatePlayerVictory()
-	{
-		gameState = 'p';
-		levelUp();
-	}
-	// increase level by 1 if there is another level
+	// if levels left
+	// increasen level by 1 and set state to p - player victory
 	// other wise, set gameState to w - win, reset level
+	// set bnTxt appropriately
 	void levelUp()
 	{
-		if (lvl < 3) lvl++;
+		if (lvl < 3)
+		{
+			lvl++;
+			gameState = 'p';
+			btnTxt.setString("Next Level");
+		}
 		else
 		{
 			lvl = 1;
+			lives = 3;
+			score = 0;
 			gameState = 'w';
+			btnTxt.setString("Win!\nPlay Again?");
 		}
 	}
 	// check if the state is w - win
@@ -90,10 +130,11 @@ public:
 	// set state to l - loss
 	void resetGame()
 	{
-		cout << lives << " " << lvl << endl;
 		gameState = 'l';
+		btnTxt.setString("Game Over!\nPlay Again?");
 		lvl = 1;
 		lives = 3;
+		score = 0;
 	}
 	// check if the state is l - loss
 	bool checkStateLoss()
@@ -115,8 +156,8 @@ public:
 	int getMissileSpawnRate()
 	{
 		int rate = 0;
-		if (lvl == 1) rate = 2;
-		else if (lvl == 2) rate = 5;
+		if (lvl == 1) rate = 5;
+		else if (lvl == 2) rate = 8;
 		else if (lvl == 3) rate = 10;
 		return rate;
 	}
@@ -150,5 +191,38 @@ public:
 			spawnTime.y = 15;
 		}
 		return spawnTime;
+	}
+	void renderBtn(RenderWindow &win)
+	{
+		win.draw(btnTxt);
+		win.draw(btn);
+	}
+	void renderData(RenderWindow &win)
+	{
+		// had trouble getting this to work. Didn't know how to in to str;
+
+		string dataStr("Level: ");
+		dataStr.append(to_string(lvl));
+		dataStr.append("\nLives: ");
+		dataStr.append(to_string(lives));
+		dataStr.append("\nScore: ");
+		dataStr.append(to_string(score));
+		dataTxt.setString(dataStr);
+		win.draw(dataTxt);
+	}
+	void checkBtnClick(Vector2f mouse)
+	{
+		if (btn.getGlobalBounds().contains(mouse))
+		{
+			setStatePlay();
+		}
+	}
+	bool checkLevel(int level)
+	{
+		return (lvl == level);
+	}
+	void increaseScore(int add)
+	{
+		score += add;
 	}
 };

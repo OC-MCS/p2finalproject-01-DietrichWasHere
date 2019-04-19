@@ -59,7 +59,7 @@ int main()
 	// Limit the framerate to 60 frames per second
 	window.setFramerateLimit(60);
 
-	UIGameControl game;
+	UIGameControl game(window.getSize());
 
 	// load textures from file into memory. This doesn't display anything yet.
 	// Notice we do this *before* going into animation loop.
@@ -76,8 +76,21 @@ int main()
 		cout << "Unable to load stars texture!" << endl;
 		exit(EXIT_FAILURE);
 	}
-	Texture alienTexture;
-	if (!alienTexture.loadFromFile("alien.png"))
+	Texture * alienTexture; // point to current alien texture
+	Texture alienTexture1;
+	if (!alienTexture1.loadFromFile("alien2.png"))
+	{
+		cout << "Unable to load alien texture!" << endl;
+		exit(EXIT_FAILURE);
+	}
+	Texture alienTexture2;
+	if (!alienTexture2.loadFromFile("alien3.png"))
+	{
+		cout << "Unable to load alien texture!" << endl;
+		exit(EXIT_FAILURE);
+	}
+	Texture alienTexture3;
+	if (!alienTexture3.loadFromFile("alien.png"))
 	{
 		cout << "Unable to load alien texture!" << endl;
 		exit(EXIT_FAILURE);
@@ -109,14 +122,14 @@ int main()
 	Missiles missileGroup;
 	AlienHerd herd;
 	Bombs bombGroup;
-	game.setStatePlay();
 	
 	// initial position of the ship will be approx middle of screen
 	float shipX = window.getSize().x / 2.0f;
 	float shipY = (window.getSize().y * 11)/ 12.0f;
 	// used in alien reaching ground loss condition
+	alienTexture = &alienTexture1; // set to first alien texture
 	ship.setPosition(shipX, shipY);
-	herd.addAliens(alienTexture, game.getNumAliens(), window.getSize());
+	herd.addAliens(*alienTexture, game.getNumAliens(), window.getSize());
 
 	while (window.isOpen())
 	{
@@ -133,10 +146,18 @@ int main()
 				// if gamestate = playing,  check for bombSpawn; avoid spawning extra bombs
 				if (event.type == Event::KeyPressed && game.checkStatePlay())
 				{
-					if (event.key.code == Keyboard::Space) // if continued work, modify to prevent strafing
+					if (event.key.code == Keyboard::Space) // && !Keyboard::isKeyPressed(Keyboard::Left) && !Keyboard::isKeyPressed(Keyboard::Right))
+						// if continued work, modify to prevent strafing; attempted a fix (!'s); never mind, just increasing time between missiles
 					{
 						missileGroup.spawnMissile(missileTexture, ship.getPosition(), game.getMissileSpawnRate());
 					}
+				}
+				else if (event.type == Event::MouseButtonReleased)
+				{
+					// maybe they just clicked on btn
+					// check for this and handle it. Done!
+					game.checkBtnClick(window.mapPixelToCoords(Mouse::getPosition(window)));
+					// will set state to play
 				}
 		}
 
@@ -157,29 +178,39 @@ int main()
 			// draw the ship on top of background 
 			// (the ship from previous frame was erased when we drew background)
 			window.draw(ship);
-			if (!(herd.moveHerd(window, game.getAlienDropSpeed(), shipY))) game.setStateAlienVictory(); // herd.moveHerd only called when herd has contents
+			if (!(herd.moveHerd(window, game.getAlienDropSpeed(), shipY))) game.alienVictory(); // herd.moveHerd only called when herd has contents
 			// render/move/check collisions for bombs
 			if (bombGroup.waitTimeOver(game.getBombSpawnTime())) bombGroup.spawnBomb(bombTexture, herd.getBombPos());
-			if (bombGroup.moveBombs(window, ship.getGlobalBounds(), game.getAlienDropSpeed() * 2.0f)) game.setStateAlienVictory();
+			if (bombGroup.moveBombs(window, ship.getGlobalBounds(), game.getAlienDropSpeed() * 2.0f)) game.alienVictory();
 			// alien speed * 2 is missile speed
 
 			// render/move/check collisions for missiles
-			missileGroup.moveMissiles(window, herd, bombGroup);
+			game.increaseScore(missileGroup.moveMissiles(window, herd, bombGroup)); // move missiles, increase score accordingly
 			// check if 
-			if ((game.checkStatePlay()) && (herd.getWin())) game.setStatePlayerVictory(); // change game state if all aliens defeated
+			if (herd.getWin()) game.levelUp(); // change game state if all aliens defeated
+			// render data
+			game.renderData(window);
 		}
 		// if game needed to reset
-		else if (game.checkStateAlienVictory() || game.checkStatePlayerVictory() || game.checkStateStart() || game.checkStateWin() || game.checkStateLoss())
+		else if (game.checkStateAlienVictory() || game.checkStatePlayerVictory() || game.checkStateWin() || game.checkStateLoss())
 		{
 			// clear extra sprites
 			bombGroup.clearBombs();
 			missileGroup.clearMissiles();
 			herd.clearAliens();
+			// set texture based on level
+			if (game.checkLevel(1)) alienTexture = &alienTexture1;
+			else if (game.checkLevel(2)) alienTexture = &alienTexture2;
+			else if (game.checkLevel(3)) alienTexture = &alienTexture3;
 			// create game objects for level
 			// used in alien reaching ground loss condition
 			ship.setPosition(shipX, shipY);
-			herd.addAliens(alienTexture, game.getNumAliens(), window.getSize());
-			game.setStatePlay();
+			herd.addAliens(*alienTexture, game.getNumAliens(), window.getSize());
+			game.setStateScreen();
+		}
+		else // should only work if state is screen
+		{
+			game.renderBtn(window);
 		}
 
 		

@@ -28,8 +28,9 @@ public:
 		}
 	}
 	// handle missile movement, collison / action, drawing
-	void moveMissiles(RenderWindow &win, AlienHerd &herd, Bombs &bombGroup)
+	int moveMissiles(RenderWindow &win, AlienHerd &herd, Bombs &bombGroup)
 	{
+		int points = 0; // reurn points gained
 		if (spawnDelay > 0) spawnDelay--;
 		list<Missile>::iterator iter;
 		for (iter = missileList.begin(); iter != missileList.end();)
@@ -43,11 +44,13 @@ public:
 			{
 				// collision check action
 				iter = missileList.erase(iter);
+				points += 50;
 			}
 			else if (bombGroup.checkCollision(iter->getCollision())) // bomb collision check
 			{
 				// collision check action
 				iter = missileList.erase(iter);
+				points += 10;
 			}
 			else
 			{
@@ -55,6 +58,7 @@ public:
 				iter++;
 			}
 		}
+		return points;
 	}
 	// clear out any remaining missiles for reset / next level
 	void clearMissiles()
